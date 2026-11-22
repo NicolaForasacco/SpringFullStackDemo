@@ -166,4 +166,4 @@ docker compose down
 ---
 
 ## 📄 Licenza
-Rilasciato sotto licenza [MIT](LICENSE).
+Rilasciato sotto licenza [MIT](https://opensource.org/licenses/MIT).
