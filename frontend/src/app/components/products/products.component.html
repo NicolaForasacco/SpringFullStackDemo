@@ -1,0 +1,148 @@
+<div class="container py-4">
+
+  <!-- Alert Messaggi -->
+  @if (message()) {
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+      <i class="bi bi-info-circle-fill me-2"></i> {{ message() }}
+      <button type="button" class="btn-close" (click)="message.set(null)"></button>
+    </div>
+  }
+
+  <!-- Header Statistiche Cache vs Database -->
+  <div class="card shadow-sm border-0 mb-4 bg-white">
+    <div class="card-body p-4">
+      <div class="row align-items-center">
+        <div class="col-md-7">
+          <h4 class="fw-bold mb-1">
+            <i class="bi bi-boxes text-primary"></i> Catalogo Prodotti Enterprise
+          </h4>
+          <p class="text-muted mb-0">
+            Dimostrazione del flusso: <strong>Angular &rarr; Spring Security (JWT) &rarr; Redis Cache &rarr; PostgreSQL</strong>.
+          </p>
+        </div>
+
+        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+          @if (productsData(); as data) {
+            <div class="d-inline-flex flex-column align-items-md-end">
+              @if (data.source === 'REDIS_CACHE') {
+                <span class="badge badge-cache mb-1">
+                  <i class="bi bi-lightning-charge-fill"></i> REDIS CACHE HIT ({{ data.elapsedMs }} ms)
+                </span>
+                <small class="text-success fw-semibold">Dati letti istantaneamente dalla RAM di Redis!</small>
+              } @else {
+                <span class="badge badge-db mb-1">
+                  <i class="bi bi-database-fill"></i> POSTGRESQL QUERY ({{ data.elapsedMs }} ms)
+                </span>
+                <small class="text-primary fw-semibold">Dati letti da disco PostgreSQL e salvati in cache.</small>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <hr class="my-3">
+
+      <!-- Pulsanti Azione Cache -->
+      <div class="d-flex flex-wrap gap-2">
+        <button class="btn btn-outline-primary btn-sm" (click)="loadProducts()" [disabled]="loading()">
+          <i class="bi bi-arrow-clockwise"></i> Ricarica Lista (Testa la velocità)
+        </button>
+        <button class="btn btn-outline-warning btn-sm text-dark" (click)="clearRedisCache()">
+          <i class="bi bi-trash3-fill"></i> Svuota Cache Redis
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Colonna Sinistra: Lista Prodotti -->
+    <div class="col-lg-8">
+      <div class="card shadow-sm border-0 bg-white">
+        <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+          <h5 class="fw-bold mb-0">Prodotti nel Sistema</h5>
+          <span class="badge bg-secondary rounded-pill">
+            {{ productsData()?.products?.length || 0 }} elementi
+          </span>
+        </div>
+
+        <div class="card-body p-0">
+          @if (loading()) {
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status"></div>
+              <p class="text-muted mt-2">Caricamento in corso...</p>
+            </div>
+          } @else {
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th scope="col" class="ps-4">ID</th>
+                    <th scope="col">Nome Prodotto</th>
+                    <th scope="col">Descrizione</th>
+                    <th scope="col" class="text-end pe-4">Prezzo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (prod of productsData()?.products; track prod.id) {
+                    <tr>
+                      <td class="ps-4 fw-semibold text-muted">#{{ prod.id }}</td>
+                      <td class="fw-bold">{{ prod.name }}</td>
+                      <td class="text-muted">{{ prod.description || '-' }}</td>
+                      <td class="text-end pe-4 text-success fw-bold">
+                        € {{ prod.price | number:'1.2-2' }}
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="4" class="text-center py-4 text-muted">
+                        Nessun prodotto presente. Inseriscine uno dal pannello a destra!
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Colonna Destra: Inserimento Nuovo Prodotto -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm border-0 bg-white">
+        <div class="card-header bg-white py-3 border-0">
+          <h5 class="fw-bold mb-0"><i class="bi bi-plus-circle text-primary me-1"></i> Nuovo Prodotto</h5>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <form (ngSubmit)="addProduct()">
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Nome Prodotto</label>
+              <input type="text" class="form-control" [(ngModel)]="newName" name="newName" required placeholder="Es. Cuffie Bluetooth">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Prezzo (€)</label>
+              <input type="number" step="0.01" class="form-control" [(ngModel)]="newPrice" name="newPrice" required placeholder="Es. 89.99">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Descrizione</label>
+              <textarea class="form-control" rows="3" [(ngModel)]="newDescription" name="newDescription" placeholder="Dettagli aggiuntivi..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 fw-semibold" [disabled]="submitting()">
+              @if (submitting()) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+              }
+              Salva su PostgreSQL
+            </button>
+            <div class="form-text text-muted text-center mt-2 small">
+              L'inserimento salverà nel DB e cancellerà automaticamente la vecchia cache da Redis.
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

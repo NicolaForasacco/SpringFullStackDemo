@@ -1,0 +1,72 @@
+# ==========================================
+# File di sistema e OS
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# ==========================================
+# IDE ed Editor (IntelliJ, VS Code, Eclipse)
+# ==========================================
+.idea/
+**/.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.vscode/
+**/.vscode/
+.classpath
+.project
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# ==========================================
+# Backend (Java / Maven / Spring Boot)
+# ==========================================
+**/target/
+**/*.class
+**/*.jar
+**/*.war
+**/*.ear
+hs_err_pid*
+replay_pid*
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# ==========================================
+# Frontend (Node / Angular)
+# ==========================================
+**/node_modules/
+**/dist/
+**/.angular/
+.npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==========================================
+# File di Log e Temporanei
+# ==========================================
+logs/
+*.log
+*.tmp
+*.bak
+*.swp
+*~
+
+# ==========================================
+# Ambiente Locale e Docker
+# ==========================================
+.env
+.env.local
+.env.*.local
+docker-compose.override.yml
